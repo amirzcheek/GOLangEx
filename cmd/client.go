@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -36,11 +37,16 @@ func Write(conn net.Conn) {
 	if err != nil {
 		wg.Done()
 	}
+
+	err = writer.Flush()
+	if err != nil {
+		wg.Done()
+	}
+
 	for {
-		fmt.Print("Enter message: ")
 		message, _ := reader.ReadString('\n')
 		_, err := writer.WriteString(message)
-		if err != nil {
+		if err != nil || strings.TrimSpace(message) == "/quit" {
 			break
 		}
 		err = writer.Flush()
